@@ -46,7 +46,11 @@ def calcular_somas_padroes(matriz, x, y):
     maximo = np.max(submatriz_mascarada)
     minimo = np.min(submatriz_mascarada[submatriz_mascarada > 0])  # Ignorar os zeros
     
-    return soma_absoluta, maximo, minimo, submatriz_mascarada
+    # Excluir o elemento central na soma relativa
+    valor_central = submatriz_mascarada[1, 1]
+    soma_relativa = (soma_absoluta - valor_central) / (np.sum(mascara) - mascara[1, 1])
+    
+    return soma_absoluta, maximo, minimo, soma_relativa, submatriz_mascarada
 
 # Inicializar uma matriz de controle para marcar posições já usadas
 linhas, colunas = matriz.shape
@@ -64,9 +68,9 @@ for x in range(1, linhas - 1):
         if not np.any(marcador[x-1:x+2, y-1:y+2]):
             resultado = calcular_somas_padroes(matriz, x, y)
             if resultado is not None:
-                soma_abs, maximo, minimo, submatriz_mascarada = resultado
+                soma_abs, maximo, minimo, soma_relativa, submatriz_mascarada = resultado
                 posicoes_validas.append((x, y))
-                resultados.append((soma_abs, maximo, minimo))
+                resultados.append((soma_abs, maximo, minimo, soma_relativa))
                 somas_absolutas.append(soma_abs)  # Adiciona a soma absoluta na lista
                 # Marcar as posições da submatriz 3x3 como usadas
                 marcador[x-1:x+2, y-1:y+2] = True
@@ -85,14 +89,14 @@ plt.savefig("matriz.png")
 
 # Exibir os resultados de somas
 for idx, (x, y) in enumerate(posicoes_validas):
-    soma_abs, maximo, minimo = resultados[idx]
+    soma_abs, maximo, minimo, soma_relativa = resultados[idx]
     print(f"Posição central ({x}, {y}):")
     print(f"  Soma absoluta: {soma_abs}")
     print(f"  Máximo: {maximo}")
     print(f"  Mínimo: {minimo}")
+    print(f"  Soma relativa: {int(soma_relativa)}")
 
 # Exibir o maior e menor padrão encontrado
-
 maior_padrao = max(somas_absolutas)
 menor_padrao = min(somas_absolutas)
 print(f"\nMaior padrão encontrado (soma absoluta): {maior_padrao}")
